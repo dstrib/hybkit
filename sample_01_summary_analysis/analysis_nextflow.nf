@@ -13,42 +13,57 @@ See: "summary_analysis_notes.rst" for more information.
 */
 
 
+process testHybkit {
+    """
+    #!/usr/bin/env python3
+    import hybkit
+    """
+}
 
-/*
- *params.infiles
- */
+params.in_files = file("GSM*.hyb")
+params.in_files.sort()
+params.out_dir = file("output")
 
-words = ['hello', 'world']
+println('\nPerforming QC & Summary Analysis...')
+
+if( !params.out_dir.exists() ) {
+    println( 'Creating Output Directory:\n    %s\n' % out_dir )
+    params.out_dir.mkdir
+}
+
+println( 'Analyzing Files:' )
+println( "    ${params.in_files.join('\n    ')}" )
+print(params.in_files)
+//Channel
+//    .fromList(params.in_files)
+//    .toSortedList()
+//    .subscribe { println "${params.in_files.join("\n    ")}" }
+
 
 process summaryAnalysis {
 
     input:
-    val word from words
+    file in_file from params.in_files
 
     output:
     stdout result
 
     """
-    echo $word
+    echo "$in_file"
     """
 }
 
+result
+    .toSortedList()
+    .subscribe { print "    ${it.join('    ')}" }
+
+print(result)
+
+//print(result)
+//for i in result:
+//    print(i)
+
 /*
-    os.path.join(analysis_dir, 'GSM2720017_UI_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720018_UI_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720019_UI_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720020_WT_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720021_WT_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720022_WT_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720023_D11_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720024_D11_BR1.hyb'),
-    os.path.join(analysis_dir, 'GSM2720025_D11_BR1.hyb')
-]
-match_legend_file = os.path.join(analysis_dir, 'string_match_legend.csv')
-# Begin Analysis
-print('\nPerforming QC & Summary Analysis...')
-if not os.path.isdir(out_dir):
-    print('Creating Output Directory:\n    %s\n' % out_dir)
     os.mkdir(out_dir)
 print('Analyzing Files:')
 print('    ' + '\n    '.join(input_files) + '\n')
