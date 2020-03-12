@@ -67,7 +67,7 @@ Pipelines:
         ============================= =========================================================
 
     These pipelines provide analysis results in both tabular and graph form.
-    As an illustration, the example summary analysis includes the return of 
+    As an illustration, the |Example Summary Analysis| includes the return of 
     the contained hybrid sequence types as both a csv table and as a pie chart:
 
         `CSV Output <https://raw.githubusercontent.com/RenneLab/hybkit/master/sample_01_summary_analysis/example_output/combined_analysis_types_hybrids.csv>`_
@@ -140,6 +140,7 @@ Further documentation on hybkit usage can be found in |docs_link|_.
 .. |hybkit Toolkit| replace:: *hybkit Toolkit*
 .. |Example Pipelines| replace:: *Example Pipelines*
 .. |hybkit API| replace:: *hybkit API*
+.. |Example Summary Analysis| replace:: *Example Summary Analysis*
 .. |docs_link| replace:: hybkit's ReadTheDocs
 .. _docs_link: https://hybkit.readthedocs.io#
 .. |sample_01_image| image:: sample_01_summary_analysis/example_output/combined_analysis_types_hybrids.png

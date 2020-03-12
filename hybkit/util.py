@@ -224,16 +224,20 @@ def out_path_exists(file_name):
 
 # Util : Path Helper Functions 
 def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix='', 
-                       out_dir='', seg_sep='_'):
+                       out_dir='', seg_sep='_', remove_out_suffix=False):
     """
     Given an input file name, generate an output file name.
 
     Args:
         in_file_name (str): Name of input file as template.
-        file_suffix (str): File type suffix.
-        add_suffix (str): Name suffix to add to indicate file is output.
+        name_suffix (str): Suffix to add to file name stem (before .suffix end).
+        in_suffix (str): ".suffix" to remove from base name.
+        out_suffix (str): ".suffix" to add to returned name
+                          (overridden by remove_out_suffix=True).
         out_dir (str): Directory path in which to place output file. 
         seg_sep (str): Separator string between file name segements.
+        remove_out_suffix (bool): Remove suffix identified by out_suffix.
+                                  Works even if suffix is provided in name_suffix.
 
     Returns:
         An output file path based on the input file template.
@@ -250,6 +254,10 @@ def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix
     if seg_sep and not full_name_suffix.startswith(seg_sep):
         full_name_suffix = seg_sep + full_name_suffix
     
+    if remove_out_suffix and full_name_suffix.lower().endswith(out_suffix.lower()):
+        suffix_len = len(out_suffix)
+        full_name_suffix = full_name_suffix[:(-1 * suffix_len)]
+
     out_file_basename = in_file_basename + full_name_suffix
 
     out_file_full = os.path.join(out_dir, out_file_basename)

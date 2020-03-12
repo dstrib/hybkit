@@ -25,7 +25,8 @@ hyb_analysis = imp.load_source('hyb_analysis',
                                 os.path.abspath(os.path.join('..', 'scripts', 'hyb_analysis')))
 hyb_check = imp.load_source('hyb_check',
                             os.path.abspath(os.path.join('..', 'scripts', 'hyb_check')))
-
+hyb_type_analysis = imp.load_source('hyb_type_analysis',
+    os.path.abspath(os.path.join('..', 'scripts', 'hyb_type_analysis')))
 
 # -- Project information -----------------------------------------------------
 

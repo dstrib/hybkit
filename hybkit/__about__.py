@@ -15,7 +15,7 @@ else:
     import importlib_resources
 
 project_name = 'hybkit'
-version = "0.2.0"
+version = "0.2.1"
 description = 'Toolkit for analysis of .hyb format genomic '
 description += 'sequence data from ribonomics experiments.'
 project_url = 'https://github.com/RenneLab/hybkit'
