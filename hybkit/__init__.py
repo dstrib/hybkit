@@ -253,6 +253,9 @@ class HybRecord(object):
     #: Default coding sequence types for use in the :func:`target_region_analysis`.
     CODING_TYPES = {'mRNA'}
 
+    #: Available modes for hybrid counting. See the :func:`count` method for more details.
+    COUNT_MODES = {'record', 'read'}
+
     #: Class-level default settings, copied into :attr:`settings` at runtime.
     DEFAULTS = {}
     DEFAULTS['reorder_flags'] = True           # Reorder flags to default order when writing
@@ -273,6 +276,8 @@ class HybRecord(object):
 
     # Placeholder symbol for empty entries. Default is "." in the Hyb software package.
     DEFAULTS['hyb_placeholder'] = '.'
+
+    DEFAULTS['count_mode'] = 'record'
 
     #: Dict of information required for use by :func:`find_seg_types`. 
     #: Set with the specific information required by the selected method for use by default.

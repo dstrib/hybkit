@@ -21,8 +21,8 @@ hyb_check = imp.load_source('hyb_check',
                             os.path.abspath(os.path.join('..', 'scripts', 'hyb_check')))
 hyb_filter = imp.load_source('hyb_filter',
                              os.path.abspath(os.path.join('..', 'scripts', 'hyb_filter')))
-hyb_analysis = imp.load_source('hyb_analysis',
-                                os.path.abspath(os.path.join('..', 'scripts', 'hyb_analysis')))
+hyb_analyze = imp.load_source('hyb_analyze',
+                                os.path.abspath(os.path.join('..', 'scripts', 'hyb_analyze')))
 hyb_check = imp.load_source('hyb_check',
                             os.path.abspath(os.path.join('..', 'scripts', 'hyb_check')))
 hyb_type_analysis = imp.load_source('hyb_type_analysis',

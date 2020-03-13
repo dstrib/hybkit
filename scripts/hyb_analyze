@@ -176,7 +176,7 @@ def hyb_analyze(in_hyb_files, analysis_types,
 
         if verbose:
             print('Analyzing File:\n    ' + in_hyb_file)
-            print(out_hyb_file)
+            print('    --> ' + out_hyb_file)
     
         with hybkit.HybFile.open(in_hyb_file, 'r') as in_hyb,\
              hybkit.HybFile.open(out_hyb_file, 'w') as out_hyb:

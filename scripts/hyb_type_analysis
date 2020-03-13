@@ -64,7 +64,7 @@ def make_parser():
          allow_abbrev=False,
          )
 
-    script_parser.set_defaults(out_suffix=hybkit.util.ANALYSIS_OUT_SUFFIX)
+    # script_parser.set_defaults(out_suffix=hybkit.util.ANALYSIS_OUT_SUFFIX)
 
     return script_parser
 
@@ -73,7 +73,7 @@ def hyb_type_analysis(in_hyb_files,
                       out_dir='.', 
                       out_suffix='',
                       out_hyb_files=None,
-                      count_mode
+                      count_mode=hybkit.HybRecord.DEFAULTS['count_mode'],
                       verbose=False, silent=False):
     """Perform main script function."""
 
@@ -127,13 +127,13 @@ if __name__ == '__main__':
     hybkit.util.validate_args(args, script_parser)
     hybkit.HybRecord.set_namespace_settings(args, verbose=args.verbose)
     hybkit.HybFile.set_namespace_settings(args, verbose=args.verbose)
-    hyb_analyze(
-                args.in_hyb, 
-                out_dir=args.out_dir,
-                out_suffix=args.out_suffix,
-                out_hyb_files=args.out_hyb,
-                count_mode='record',
-                verbose=args.verbose,
-                silent=args.silent,
-               )
+    hyb_type_analysis(
+                      args.in_hyb, 
+                      out_dir=args.out_dir,
+                      out_suffix=args.out_suffix,
+                      out_hyb_files=args.out_hyb,
+                      count_mode='record',
+                      verbose=args.verbose,
+                      silent=args.silent,
+                     )
 
