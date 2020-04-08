@@ -8,7 +8,7 @@ Read one or more '.hyb' format files and output files that meet (or exclude) spe
 """
 
 import sys
-import os 
+import os
 import argparse
 import textwrap
 import hybkit
@@ -19,10 +19,10 @@ from hybkit.__about__ import __author__, __contact__, __credits__, __date__, __d
 # Divide docstring into argparse and full portions.
 argparse_doc = __doc__ + '\nFor full script description and usage, see the hybkit documentation.'
 __doc__ += textwrap.dedent("""
-    This script takes one or more filter and/or exclusion criteria 
+    This script takes one or more filter and/or exclusion criteria
     and outputs only those records matching (/excluding) those criteria.
 
-    The filter criteria and options are based on the options provided by the 
+    The filter criteria and options are based on the options provided by the
     :func:`hybkit.HybRecord.has_property` method of the Hybkit API.
 
     Example System Calls:
@@ -41,15 +41,15 @@ __doc__ += textwrap.dedent("""
             # Returns records with only the first / |5p| segtype of mRNA
 
             hyb_filter -i my_file_1.hyb --include seg_type_contains RNA
-            # Returns all records with a segtype that includes 
+            # Returns all records with a segtype that includes
             #   the string "RNA" (case-sensitive)
 
             hyb_filter -i my_file_1.hyb --filter seg_contains kshv
-            # Returns records where either segment identifier contains the 
+            # Returns records where either segment identifier contains the
             #   the string: "kshv" (case-sensitive)
 
-    Multiple filtering options can be used together. 
-    The ``-m`` / ``--filter_mode`` argument determines whether 
+    Multiple filtering options can be used together.
+    The ``-m`` / ``--filter_mode`` argument determines whether
     "any" (DEFAULT) or "all" filters are required to be true for inclusion.
     Note: Matching any exclusion criteria results in exclusion of the record.
 
@@ -66,13 +66,18 @@ __doc__ += textwrap.dedent("""
 
             hyb_filter -i my_file_1.hyb --filter_mode any \\
                        --filter seg_type miRNA \\
-                       --filter_2 seg_type lncRNA 
-            # Returns records containing either reference identifier matching 
+                       --filter_2 seg_type lncRNA
+            # Returns records containing either reference identifier matching
             #   either "miRNA" or "lncRNA" (case-sensitive)
-                                              
+
     """)
 
 __doc__ += hybkit.util.output_description
+
+# Overwrite "print" function with hybkit.util.flush_print for up-to-date outputs.
+old_print = print
+print = hybkit.util.flush_print
+
 
 # Create Command-line Argument Parser
 def make_parser():
@@ -96,9 +101,10 @@ def make_parser():
 
     return script_parser
 
+
 # Define main script function.
 def hyb_filter(in_hyb_files, filter_params, exclude_params, filter_mode='all',
-               out_dir='.', 
+               out_dir='.',
                out_suffix=hybkit.util.FILTER_OUT_SUFFIX,
                out_hyb_files=None,
                verbose=False, silent=False):
@@ -106,22 +112,22 @@ def hyb_filter(in_hyb_files, filter_params, exclude_params, filter_mode='all',
 
     if not silent:
         print('\nFiltering Hyb Files...')
-  
+
     if verbose:
         if filter_params:
             print('Records Must match %s Filter Parameters:' % filter_mode.upper())
-            print('    ' + '\n    '.join((str(p) for p in filter_params)) +'\n')
+            print('    ' + '\n    '.join((str(p) for p in filter_params)) + '\n')
 
         if exclude_params:
             print('Using Exclusion Filter Parameters:')
-            print('    ' + '\n    '.join((str(p) for p in exclude_params)) +'\n')
+            print('    ' + '\n    '.join((' : '.join(p) for p in exclude_params)) + '\n')
 
     allowed_modes = {'all', 'any'}
 
     if filter_mode not in allowed_modes:
         message = 'Unrecognized filtering mode: %s\n' % filter_mode
         message += 'Options are: %s' % str(allowed_modes)
- 
+
     for i, in_hyb_file in enumerate(in_hyb_files):
         file_basename = os.path.basename(in_hyb_file)
         if out_hyb_files is not None:
@@ -135,8 +141,8 @@ def hyb_filter(in_hyb_files, filter_params, exclude_params, filter_mode='all',
                                                           seg_sep='_',)
 
         if verbose:
-            print('Filtering File:\n    ' + in_hyb_file)
-    
+            print('Filtering File:\n      ' + in_hyb_file)
+            print('  --> ' + out_hyb_file)
         include_count = 0
         exclude_count = 0
 
@@ -161,17 +167,17 @@ def hyb_filter(in_hyb_files, filter_params, exclude_params, filter_mode='all',
                     if record.has_property(prop_type, prop_compare):
                         use_record = False
                         break
-                
+
                 if use_record:
                     out_hyb.write_record(record)
-                    include_count += 1               
+                    include_count += 1
                 else:
                     exclude_count += 1
-        
-        total_count = include_count + exclude_count 
+
+        total_count = include_count + exclude_count
         if verbose:
             print('    Complete. %i Total,  ' % total_count
-                  + '%i Included,  %i Excluded\n' % (include_count, exclude_count)) 
+                  + '%i Included,  %i Excluded\n' % (include_count, exclude_count))
 
     if verbose:
         print('\nFiltering Complete.\n')
@@ -180,7 +186,7 @@ def hyb_filter(in_hyb_files, filter_params, exclude_params, filter_mode='all',
 # Execute the script function
 if __name__ == '__main__':
     script_parser = make_parser()
-    args = script_parser.parse_args() 
+    args = script_parser.parse_args()
     hybkit.util.validate_args(args, script_parser)
     hybkit.HybRecord.set_namespace_settings(args, verbose=args.verbose)
     hybkit.HybFile.set_namespace_settings(args, verbose=args.verbose)
@@ -208,7 +214,7 @@ if __name__ == '__main__':
             exclude_params.append(param_set)
 
     hyb_filter(
-                args.in_hyb, 
+                args.in_hyb,
                 filter_params,
                 exclude_params,
                 out_dir=args.out_dir,
@@ -217,4 +223,3 @@ if __name__ == '__main__':
                 verbose=args.verbose,
                 silent=args.silent,
                )
-

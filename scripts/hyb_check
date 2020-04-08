@@ -8,7 +8,7 @@ Read one or more '.hyb' format files and check for errors.
 """
 
 import sys
-import os 
+import os
 import argparse
 import textwrap
 import hybkit
@@ -27,9 +27,14 @@ __doc__ += textwrap.dedent("""
     Example system calls
         ::
 
-            hyb_check -i my_file_1.hyb 
+            hyb_check -i my_file_1.hyb
             hyb_check -i ../my_file_2.hyb /path/to/myfile_3.hyb -v --custom_flags myflag
     """)
+
+# Overwrite "print" function with hybkit.util.flush_print for up-to-date outputs.
+old_print = print
+print = hybkit.util.flush_print
+
 
 # Create Command-line Argument Parser
 def make_parser():
@@ -47,17 +52,18 @@ def make_parser():
          )
     return script_parser
 
+
 # Define main script function.
 def hyb_check(in_hyb_files, verbose=False, silent=False):
     """Perform main script function."""
 
     if not silent:
         print('\nPerforming Error Checking of Hyb Files...')
-   
+
     for in_hyb_file in in_hyb_files:
         if verbose:
-            print('Checking File:\n    ' + in_hyb_file) 
-    
+            print('Checking File:\n    ' + in_hyb_file)
+
         with hybkit.HybFile.open(in_hyb_file, 'r') as in_hyb:
             for record in in_hyb:
                 pass
@@ -69,10 +75,8 @@ def hyb_check(in_hyb_files, verbose=False, silent=False):
 # Execute the script function
 if __name__ == '__main__':
     script_parser = make_parser()
-    args = script_parser.parse_args() 
+    args = script_parser.parse_args()
     hybkit.util.validate_args(args)
     hybkit.HybRecord.set_namespace_settings(args, verbose=args.verbose)
     hybkit.HybFile.set_namespace_settings(args, verbose=args.verbose)
     hyb_check(args.in_hyb, verbose=args.verbose, silent=args.silent)
-
-

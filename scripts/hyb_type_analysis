@@ -11,7 +11,7 @@ as can be performed with ``hyb_analysis -t segtype``.
 """
 
 import sys
-import os 
+import os
 import argparse
 import textwrap
 import hybkit
@@ -23,20 +23,20 @@ from hybkit.__about__ import __author__, __contact__, __credits__, __date__, __d
 # Divide docstring into argparse and full portions.
 argparse_doc = __doc__ + '\nFor full script description and usage, see the hybkit documentation.'
 __doc__ += textwrap.dedent("""
-    
-    This analysis finds counts the number of segment type combinations 
+
+    This analysis finds counts the number of segment type combinations
     occurring in the records, such as "miRNA-mRNA", "miRNA-lncRNA", etc.
 
-    Additionally, counts are performed of the total number of segments assigned among 
+    Additionally, counts are performed of the total number of segments assigned among
     all halves as a simple tally.
 
-    Output for both analyses are provided as csv files and as a pie chart created 
-    by matplotlib. For an example of the output, see the documentation for the 
-    :ref:`Example Summary Analysis`. 
+    Output for both analyses are provided as csv files and as a pie chart created
+    by matplotlib. For an example of the output, see the documentation for the
+    :ref:`Example Summary Analysis`.
 
     Add Example system calls:
         ::
-            
+
             hyb_analysis -t mirna -i my_file_1.hyb
 
             hyb_analysis -t mirna -i my_file_1.hyb \\
@@ -46,6 +46,11 @@ __doc__ += textwrap.dedent("""
 
 __doc__ += hybkit.util.output_description
 
+# Overwrite "print" function with hybkit.util.flush_print for up-to-date outputs.
+old_print = print
+print = hybkit.util.flush_print
+
+
 # Create Command-line Argument Parser
 def make_parser():
     script_args = argparse.ArgumentParser(add_help=False)
@@ -53,6 +58,7 @@ def make_parser():
                          hybkit.util.in_hybs_parser,
                          hybkit.util.out_opts_parser,
                          hybkit.util.hyb_type_analysis_parser,
+                         hybkit.util.common_analysis_parser,
                          hybkit.util.gen_opts_parser,
                          hybkit.util.hybrecord_parser,
                          hybkit.util.hybfile_parser,
@@ -68,20 +74,33 @@ def make_parser():
 
     return script_parser
 
+
 # Define main script function.
 def hyb_type_analysis(in_hyb_files,
-                      out_dir='.', 
+                      out_dir='.',
                       out_suffix='',
                       out_hyb_files=None,
-                      count_mode=hybkit.HybRecord.DEFAULTS['count_mode'],
-                      verbose=False, silent=False):
+                      write_multi_files=False,
+                      count_mode=hybkit.analysis.DEFAULTS['count_mode'],
+                      names=None,
+                      make_plots=hybkit.analysis.DEFAULTS['make_plots'],
+                      sep=hybkit.analysis.DEFAULTS['hybrid_type_sep'],
+                      write_combined=False,
+                      verbose=False,
+                      silent=False):
     """Perform main script function."""
 
     if not silent:
         print('\nPerforming Type Analysis of Hyb Files...')
-   
-    for in_hyb_file in in_hyb_files:
+
+    all_analyses = []
+
+    for i, in_hyb_file in enumerate(in_hyb_files):
         file_basename = os.path.basename(in_hyb_file)
+        if names:
+            name = names[i]
+        else:
+            name = None
         if out_hyb_files is not None:
             out_hyb_file = out_hyb_files[i]
         else:
@@ -94,46 +113,71 @@ def hyb_type_analysis(in_hyb_files,
                                                           remove_out_suffix=True,)
 
         if verbose:
-            print('Analyzing File:\n    ' + in_hyb_file)
-            print('    Output Basename: ' + out_hyb_file)
-    
-        with hybkit.HybFile.open(in_hyb_file, 'r') as in_hyb):
+            print('Analyzing File:\n      ' + in_hyb_file)
+            print('  --> ' + out_basename + '_[*]')
+
+        with hybkit.HybFile.open(in_hyb_file, 'r') as in_hyb:
             analysis_dict = hybkit.analysis.type_dict()
             for record in in_hyb:
                 if not record.has_property('has_seg_types'):
                     message = 'ERROR: Record %s does not have segtypes.\n' % str(record)
-                    message += 'Please prepare files using the hyb_analysis -t segtype.'
+                    message += 'Please prepare files using hyb_analysis -t segtype.'
                     print(message)
-                    raise Exception(message) 
-                
+                    raise Exception(message)
+
                 hybkit.analysis.addto_type(record, analysis_dict, count_mode=count_mode)
 
-                if do_mirna:
-                    record.mirna_analysis(mirna_types)
-     
-                if do_target_region:
-                    pass
+        hybkit.analysis.write_type(out_basename,
+                                   analysis_dict,
+                                   multi_files=write_multi_files,
+                                   name=name,
+                                   # file_suffix=write_suffix. #  Requires use of API.
+                                   make_plots=make_plots)
 
-                out_hyb.write_record(record)
+        all_analyses.append(analysis_dict)
+
+    if write_combined and len(in_hyb_files) > 1:
+        combined_basename = os.path.join(out_dir, 'combined_analysis')
+        combined_analysis_dict = hybkit.analysis.combine_type_dicts(all_analyses)
+        if verbose:
+            print('Writing Combined Analysis:')
+            print('  --> ' + combined_basename + '_[*]')
+
+        hybkit.analysis.write_type(combined_basename,
+                                   combined_analysis_dict,
+                                   multi_files=write_multi_files,
+                                   name='Combined',
+                                   # file_suffix=write_suffix. #  Requires use of API.
+                                   make_plots=make_plots)
 
     if verbose:
         print('\nAnalysis Complete.\n')
 
 
-# Execute the script function
-if __name__ == '__main__':
+# Provide means to call main function using argument parser.
+def hyb_type_analysis_from_args():
+    """Process command-line args and pass to main script function."""
     script_parser = make_parser()
-    args = script_parser.parse_args() 
+    args = script_parser.parse_args()
     hybkit.util.validate_args(args, script_parser)
     hybkit.HybRecord.set_namespace_settings(args, verbose=args.verbose)
     hybkit.HybFile.set_namespace_settings(args, verbose=args.verbose)
     hyb_type_analysis(
-                      args.in_hyb, 
+                      args.in_hyb,
                       out_dir=args.out_dir,
                       out_suffix=args.out_suffix,
                       out_hyb_files=args.out_hyb,
-                      count_mode='record',
+                      write_multi_files=args.write_multi_files,
+                      count_mode=args.count_mode,
+                      names=args.names,
+                      make_plots=args.make_plots,
+                      sep=args.hybrid_type_sep,
+                      write_combined=args.write_combined,
                       verbose=args.verbose,
                       silent=args.silent,
                      )
 
+
+# Execute the script function
+if __name__ == '__main__':
+    hyb_type_analysis_from_args()

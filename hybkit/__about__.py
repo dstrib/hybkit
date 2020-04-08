@@ -3,9 +3,9 @@
 # Renne Lab, University of Florida
 # Hybkit Project : https://www.github.com/RenneLab/hybkit
 
-'''
+"""
 Package details for the hybkit project.
-'''
+"""
 
 import os
 import sys
@@ -30,7 +30,7 @@ else:
     module_dir = importlib_resources.files('hybkit')
 
 prefix_data_dir = os.path.join(sys.prefix, name_and_version)
-#Putting in try block to allow use with exec()
+# Putting in try block to allow use with exec()
 try:
     local_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 except NameError:

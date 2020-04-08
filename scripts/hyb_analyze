@@ -13,7 +13,7 @@ Analysis Types:
 """
 
 import sys
-import os 
+import os
 import argparse
 import textwrap
 import hybkit
@@ -26,16 +26,16 @@ from hybkit.__about__ import __author__, __contact__, __credits__, __date__, __d
 argparse_doc = __doc__ + '\nFor full script description and usage, see the hybkit documentation.'
 __doc__ += textwrap.dedent("""
     This utility reads in one or more files in hyb-format (see the :ref:`Hybkit Specification`)
-    and analyzes hybrid record properties. 
+    and analyzes hybrid record properties.
 
     segtype Analysis:
         | The 'segtype' analysis utilizes the :func:`hybkit.HybRecord.find_seg_types` method
-          to assign the record flags: :ref:`seg1_type <seg1_type>` 
+          to assign the record flags: :ref:`seg1_type <seg1_type>`
           and :ref:`seg2_type <seg2_type>`
 
         Example system calls:
             ::
-            
+
                 hyb_analysis -t segtype -i my_file_1.hyb
 
                 hyb_analysis -t segtype -i my_file_1.hyb \\
@@ -48,7 +48,7 @@ __doc__ += textwrap.dedent("""
 
     mirna Analysis:
         | The 'mirna' analysis uses the :func:`hybkit.HybRecord.mirna_analysis` method
-          to identify properties relating to mirna within the hybrids, 
+          to identify properties relating to mirna within the hybrids,
           including mirna presence and positions.
           This analysis requires the seg_type flags to be filled, either by a segtype analysis,
           or by parsing the read using the ``--hybformat_ref True`` option with a hyb-format
@@ -57,7 +57,7 @@ __doc__ += textwrap.dedent("""
 
         Example system calls:
             ::
-            
+
                 hyb_analysis -t mirna -i my_file_1.hyb
 
                 hyb_analysis -t mirna -i my_file_1.hyb \\
@@ -77,6 +77,11 @@ __doc__ += textwrap.dedent("""
     """)
 
 __doc__ += hybkit.util.output_description
+
+# Overwrite "print" function with hybkit.util.flush_print for up-to-date outputs.
+old_print = print
+print = hybkit.util.flush_print
+
 
 # Create Command-line Argument Parser
 def make_parser():
@@ -100,27 +105,30 @@ def make_parser():
 
     return script_parser
 
+
 # Define main script function.
-def hyb_analyze(in_hyb_files, analysis_types, 
-                out_dir='.', 
+def hyb_analyze(in_hyb_files, analysis_types,
+                out_dir='.',
                 out_suffix=hybkit.util.ANALYSIS_OUT_SUFFIX,
                 out_hyb_files=None,
-                segtype_method=None, 
-                segtype_params=None,  
+                segtype_method=None,
+                segtype_params=None,
                 mirna_types=None,
                 verbose=False, silent=False):
     """Perform main script function."""
 
     if not silent:
         print('\nPerforming Analysis of Hyb Files...')
-   
+
     # Set analysis modes
     do_segtype = ('segtype' in analysis_types)
     do_mirna = ('mirna' in analysis_types)
     do_target_region = ('target_region' in analysis_types)
 
     if verbose:
-        print('\nPerforming Analysis Types: ' + ', '.join([x.title() for x in analysis_types]))
+        print('    Analysis Types: ' + ' --> '.join(analysis_types + ['Done']))
+
+    if not silent:
         print()
 
     # Prepare for segtype analysis.
@@ -132,7 +140,7 @@ def hyb_analyze(in_hyb_files, analysis_types,
 
         if segtype_method != make_parser().get_default('segtype_method'):
             if verbose:
-                print('Setting non-default segtype finding method: %s' % segtype_method)
+                print('Setting segtype finding method: %s' % segtype_method)
             params = {}
             params_method = hybkit.HybRecord.find_type_parameter_methods[segtype_method]
             if params_method is not None:
@@ -140,7 +148,7 @@ def hyb_analyze(in_hyb_files, analysis_types,
                     segtype_params = (
                         hybkit.HybRecord.find_type_default_parameter_files[segtype_method])
                     if verbose:
-                        print ('Using default segtype parameter file: %s' % segtype_params)
+                        print('Using default segtype parameter file: %s' % segtype_params)
                 elif verbose:
                     print('Using provided segtype parameter file: %s' % segtype_params)
                 params = params_method(segtype_params)
@@ -156,7 +164,7 @@ def hyb_analyze(in_hyb_files, analysis_types,
 
         if verbose:
             print('Assigning types as miRNA:')
-            print('   ', mirna_types, '\n')
+            print('   ', ', '.join(mirna_types), '\n')
 
     if do_target_region:
         message = 'Target Region Analysis is not yet implemented.'
@@ -175,18 +183,18 @@ def hyb_analyze(in_hyb_files, analysis_types,
                                                           seg_sep='_',)
 
         if verbose:
-            print('Analyzing File:\n    ' + in_hyb_file)
-            print('    --> ' + out_hyb_file)
-    
+            print('Analyzing File:\n      ' + in_hyb_file)
+            print('  --> ' + out_hyb_file)
+
         with hybkit.HybFile.open(in_hyb_file, 'r') as in_hyb,\
              hybkit.HybFile.open(out_hyb_file, 'w') as out_hyb:
             for record in in_hyb:
                 if do_segtype:
                     record.find_seg_types()
-            
+
                 if do_mirna:
                     record.mirna_analysis(mirna_types)
-     
+
                 if do_target_region:
                     pass
 
@@ -199,13 +207,13 @@ def hyb_analyze(in_hyb_files, analysis_types,
 # Execute the script function
 if __name__ == '__main__':
     script_parser = make_parser()
-    args = script_parser.parse_args() 
+    args = script_parser.parse_args()
     hybkit.util.validate_args(args, script_parser)
     hybkit.HybRecord.set_namespace_settings(args, verbose=args.verbose)
     hybkit.HybFile.set_namespace_settings(args, verbose=args.verbose)
     hyb_analyze(
-                args.in_hyb, 
-                args.analysis_types, 
+                args.in_hyb,
+                args.analysis_types,
                 args.out_dir,
                 out_suffix=args.out_suffix,
                 out_hyb_files=args.out_hyb,
@@ -215,4 +223,3 @@ if __name__ == '__main__':
                 verbose=args.verbose,
                 silent=args.silent,
                )
-

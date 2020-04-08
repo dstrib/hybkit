@@ -29,10 +29,25 @@ USE_ABSPATH = False
 FILTER_OUT_SUFFIX = '_filtered'
 ANALYSIS_OUT_SUFFIX = '_analyzed'
 
+
+# Util : General Helper Functions
+def flush_print(*args, file=sys.stdout, **kwargs):
+    """
+    Wrapper for python "print" function that flushes with each print.
+
+    Args:
+        *args: Passed to python :func:`print` function.
+        file: Passed to python :func:`print` function, then flushed.
+        **kwargs: Passed to python :func:`print` function.
+    """
+    print(*args, file=file, **kwargs)
+    file.flush()
+
+
 # Util : Argparse Helper Functions
 def bool_from_string(value):
     if isinstance(value, bool):
-       return value
+        return value
     if value.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
     elif value.lower() in ('no', 'false', 'f', 'n', '0'):
@@ -41,6 +56,7 @@ def bool_from_string(value):
         raise argparse.ArgumentTypeError('Boolean value expected.')
     # Snippet Credit goes to @Maxim at https://stackoverflow.com/questions/15008758/
     #   /parsing-boolean-values-with-argparse
+
 
 # Util : Path Helper Functions
 def dir_exists(dir_name):
@@ -57,7 +73,7 @@ def dir_exists(dir_name):
         dir_name = os.path.expanduser(dir_name)
     if '$' in dir_name:
         dir_name = os.path.expandvars(dir_name)
-    #if not dir_name:
+    # if not dir_name:
     #    dir_name = os.getcwd()
     dir_name = dir_name.strip()
     if not os.path.isdir(dir_name):
@@ -68,7 +84,8 @@ def dir_exists(dir_name):
         dir_name = os.path.abspath(dir_name)
     return dir_name
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def file_exists(file_name, required_suffixes=[]):
     """
     Check if a file exists at the provided path, and return a normalized path.
@@ -76,7 +93,7 @@ def file_exists(file_name, required_suffixes=[]):
     Args:
         file_name (str): Name of file to check for existence.
         required_suffixes (list, optional): List of strings containing file-name suffixes.
-            If provided, a file passed to file-exists must end with one of the strings 
+            If provided, a file passed to file-exists must end with one of the strings
             provided. Otherwise an error will be raised.
 
     Returns:
@@ -89,14 +106,14 @@ def file_exists(file_name, required_suffixes=[]):
     if not os.path.isfile(file_name):
         message = 'Provided Input File: %s does not exist.' % file_name
         raise argparse.ArgumentTypeError(message)
-     
+
     # If required_suffixes provided, ensure the file has a required suffix.
     if required_suffixes:
         if not any(file_name.endswith(suffix) for suffix in required_suffixes):
             message = ('Provided Input File: %s' % file_name
                        + ' does not have an allowed suffix.'
-                       +' {%s} ' % ', '.join(required_suffixes)
-                      )
+                       + ' {%s} ' % ', '.join(required_suffixes)
+                       )
             print(message)
             raise argparse.ArgumentTypeError(message)
 
@@ -109,7 +126,8 @@ def file_exists(file_name, required_suffixes=[]):
 
     return os.path.abspath(file_name)
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def hyb_exists(file_name):
     """
     Check if a .hyb file exists at the provided path, and return a normalized path.
@@ -125,9 +143,11 @@ def hyb_exists(file_name):
     use_suffixes = HYB_SUFFIXES
     return file_exists(file_name, use_suffixes)
 
+
 hyb_exists.__doc__ = hyb_exists.__doc__ % HYB_SUFFIXES
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def vienna_exists(file_name):
     """
     Check if a .vienna file exists at the provided path, and return a normalized path.
@@ -143,9 +163,11 @@ def vienna_exists(file_name):
     use_suffixes = VIENNA_SUFFIXES
     return file_exists(file_name, use_suffixes)
 
+
 vienna_exists.__doc__ = vienna_exists.__doc__ % VIENNA_SUFFIXES
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def viennad_exists(file_name):
     """
     Check if a .viennad file exists at the provided path, and return a normalized path.
@@ -161,9 +183,11 @@ def viennad_exists(file_name):
     use_suffixes = VIENNAD_SUFFIXES
     return file_exists(file_name, use_suffixes)
 
+
 viennad_exists.__doc__ = viennad_exists.__doc__ % VIENNAD_SUFFIXES
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def ct_exists(file_name):
     """
     Check if a .ct file exists at the provided path, and return a normalized path.
@@ -179,9 +203,11 @@ def ct_exists(file_name):
     use_suffixes = CT_SUFFIXES
     return file_exists(file_name, use_suffixes)
 
+
 ct_exists.__doc__ = ct_exists.__doc__ % CT_SUFFIXES
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def fold_exists(file_name):
     """
     Check if a fold-representing file exists at the provided path, and return a normalized path.
@@ -197,9 +223,11 @@ def fold_exists(file_name):
     use_suffixes = FOLD_SUFFIXES
     return file_exists(file_name, use_suffixes)
 
+
 fold_exists.__doc__ = fold_exists.__doc__ % FOLD_SUFFIXES
 
-# Util : Path Helper Functions 
+
+# Util : Path Helper Functions
 def out_path_exists(file_name):
     """
     Check if the directory of the specified output path exists, and return a normalized path.
@@ -222,8 +250,9 @@ def out_path_exists(file_name):
 
     return os.path.abspath(file_name)
 
-# Util : Path Helper Functions 
-def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix='', 
+
+# Util : Path Helper Functions
+def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix='',
                        out_dir='', seg_sep='_', remove_out_suffix=False):
     """
     Given an input file name, generate an output file name.
@@ -234,7 +263,7 @@ def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix
         in_suffix (str): ".suffix" to remove from base name.
         out_suffix (str): ".suffix" to add to returned name
                           (overridden by remove_out_suffix=True).
-        out_dir (str): Directory path in which to place output file. 
+        out_dir (str): Directory path in which to place output file.
         seg_sep (str): Separator string between file name segements.
         remove_out_suffix (bool): Remove suffix identified by out_suffix.
                                   Works even if suffix is provided in name_suffix.
@@ -253,9 +282,9 @@ def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix
         full_name_suffix += out_suffix
     if seg_sep and not full_name_suffix.startswith(seg_sep):
         full_name_suffix = seg_sep + full_name_suffix
-    
+
     if remove_out_suffix and full_name_suffix.lower().endswith(out_suffix.lower()):
-        suffix_len = len(out_suffix)
+        suffix_len = len(out_suffix) + len(seg_sep)
         full_name_suffix = full_name_suffix[:(-1 * suffix_len)]
 
     out_file_basename = in_file_basename + full_name_suffix
@@ -271,22 +300,26 @@ def make_out_file_name(in_file_name, name_suffix='out', in_suffix='', out_suffix
     return os.path.abspath(file_name)
 
 
-# Util : Path Helper Functions 
+# Util : Path Helper Functions
 def validate_args(args, parser=None):
     """
     Check supplied arguments to make sure there are no hidden contradictions.
 
     Current checks:
-        | If explicit output file names supplied, be sure that they match the number of 
-          input files provided.
+        | If explicit output file names supplied (--out_hyb), be sure
+          that they match the number of input files provided.
+        | If data names supplied (--names), be sure they match the number
+          of input files provided.
+        | If a combined analysis (--write_combined), be sure that the number
+          of input files is greater than one.
 
     Args:
         args (namespace): The arguments produced by argparse.
     """
-   
+
     message = '\nArgument validation error: '
     if parser is not None:
-        suffix = '\n\n' + parser.format_usage() + '\n' 
+        suffix = '\n\n' + parser.format_usage() + '\n'
     else:
         suffix = 'Please use the -h or --help options for input requirements.'
 
@@ -303,6 +336,29 @@ def validate_args(args, parser=None):
             print(message + suffix)
             sys.exit(1)
 
+    if hasattr(args, 'in_hyb') and hasattr(args, 'names') and args.names is not None:
+        len_in_hyb = len(args.in_hyb)
+        len_names = len(args.names)
+        if len_in_hyb != len_names:
+            message += 'The number of input files and number of names provided '
+            message += 'do not match. ( %i and %i )' % (len_in_hyb, len_names)
+            message += '\n\nInput Files:\n    '
+            message += '\n    '.join([f for f in args.in_hyb])
+            message += '\n\nOutput Files:\n    '
+            message += '\n    '.join([n for n in args.names])
+            print(message + suffix)
+            sys.exit(1)
+
+    if ((hasattr(args, 'in_hyb') and hasattr(args, 'write_combined')
+         and args.write_combined)):
+        len_in_hyb = len(args.in_hyb)
+        if len_in_hyb == 1:
+            message += 'The --write_combined mode cannot be used with only a single input file. '
+            message += '\n\nInput Files:\n    '
+            message += '\n    '.join([f for f in args.in_hyb])
+            print(message + suffix)
+            sys.exit(1)
+
 
 # Argument Parser : Input/Output Options
 in_hyb_parser = argparse.ArgumentParser(add_help=False)
@@ -312,25 +368,25 @@ _this_arg_help = """
 in_hyb_parser.add_argument('-i', '--in_hyb', type=hyb_exists,
                            metavar='PATH_TO/MY_FILE.HYB',
                            required=True,
-                           # nargs='1', 
+                           # nargs='1',
                            help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
 in_hybs_parser = argparse.ArgumentParser(add_help=False)
 _this_arg_help = """
-                 Path to one or more hyb-format files with a ".hyb" suffix for use 
+                 Path to one or more hyb-format files with a ".hyb" suffix for use
                  in the analysis.
                  """
 in_hybs_parser.add_argument('-i', '--in_hyb', type=hyb_exists,
                             metavar='PATH_TO/MY_FILE.HYB',
                             required=True,
-                            nargs='+', 
+                            nargs='+',
                             help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
 out_hyb_parser = argparse.ArgumentParser(add_help=False)
 _this_arg_help = """
-                 Optional path to a hyb-format file for 
+                 Optional path to a hyb-format file for
                  output (should include a ".hyb" suffix).
                  If not provided, the output for input file "PATH_TO/MY_FILE.HYB"
                  will be used as a template for the output "OUT_DIR/MY_FILE_OUT.HYB".
@@ -338,13 +394,13 @@ _this_arg_help = """
 out_hyb_parser.add_argument('-o', '--out_hyb', type=out_path_exists,
                             metavar='PATH_TO/OUT_FILE.HYB',
                             # required=True,
-                            # nargs='+', 
+                            # nargs='+',
                             help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
 out_hybs_parser = argparse.ArgumentParser(add_help=False)
 _this_arg_help = """
-                 Optional path to one or more hyb-format file for 
+                 Optional path to one or more hyb-format file for
                  output (should include a ".hyb" suffix).
                  If not provided, the output for input file "PATH_TO/MY_FILE.HYB"
                  will be used as a template for the output "OUT_DIR/MY_FILE_OUT.HYB".
@@ -352,7 +408,7 @@ _this_arg_help = """
 out_hybs_parser.add_argument('-o', '--out_hyb', type=out_path_exists,
                              metavar='PATH_TO/OUT_FILE.HYB',
                              # required=True,
-                             nargs='+', 
+                             nargs='+',
                              help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
@@ -363,21 +419,20 @@ _this_arg_help = """
 req_out_hyb_parser.add_argument('-o', '--out_hyb', type=out_path_exists,
                                 metavar='PATH_TO/OUT_FILE.HYB',
                                 required=True,
-                                # nargs='1', 
+                                # nargs='1',
                                 help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
 out_dir_parser = argparse.ArgumentParser(add_help=False)
 _this_arg_help = """
-                 Path to directory for output of analysis files. 
+                 Path to directory for output of analysis files.
                  Defaults to the current working directory.
                  """
 out_dir_parser.add_argument('-d', '--out_dir', type=dir_exists,
-                           # required=True,
-                           # nargs='1',
-                           default='$PWD', 
-                           help=_this_arg_help)
-
+                            # required=True,
+                            # nargs='1',
+                            default='$PWD',
+                            help=_this_arg_help)
 
 # Argument Parser : Input/Output Options
 out_suffix_parser = argparse.ArgumentParser(add_help=False)
@@ -386,12 +441,13 @@ _this_arg_help = """
                  (Note: If the provided suffix does not end with ".hyb", then ".hyb" will be added)
                  """
 out_suffix_parser.add_argument('-u', '--out_suffix',
+                               default='',
                                # required=True,
                                # nargs='1',
                                help=_this_arg_help)
 
 
-out_opts_parser = argparse.ArgumentParser(add_help=False, 
+out_opts_parser = argparse.ArgumentParser(add_help=False,
                                           parents=[
                                                    out_hybs_parser,
                                                    out_dir_parser,
@@ -419,27 +475,25 @@ verbosity_group.add_argument('-s', '--silent', action='store_true',
                              help=_this_arg_help)
 
 
-# Argument Parser : HybRecord  
+# Argument Parser : HybRecord
 # Create parser for HybRecord options
 hybrecord_parser = argparse.ArgumentParser(add_help=False)
 hr_group = hybrecord_parser.add_argument_group('General Hyb Record Settings')
 hr_defaults = hybkit.HybRecord.DEFAULTS
 
 # Argument Parser : HybRecord
-_this_arg_key  = 'custom_flags'
+_this_arg_key = 'custom_flags'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
-                 Custom flags to allow in addition to those specified in the hybkit 
+                 Custom flags to allow in addition to those specified in the hybkit
                  specification.
                  """
 hr_group.add_argument(_this_arg_flag, type=str,
                       nargs='+',
                       help=_this_arg_help)
 
-
-
 # Argument Parser : HybRecord
-_this_arg_key  = 'hyb_placeholder'
+_this_arg_key = 'hyb_placeholder'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Placeholder character/string for missing data in hyb files.
@@ -448,11 +502,11 @@ hr_group.add_argument(_this_arg_flag, type=str,
                       default=hr_defaults[_this_arg_key],
                       help=_this_arg_help)
 
-# Argument Parser : HybRecord 
-_this_arg_key  = 'reorder_flags'
+# Argument Parser : HybRecord
+_this_arg_key = 'reorder_flags'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
-                 Re-order flags to the hybkit-specificiation order when 
+                 Re-order flags to the hybkit-specificiation order when
                  writing hyb records.
                  """
 hr_group.add_argument(_this_arg_flag, type=bool_from_string,
@@ -461,11 +515,11 @@ hr_group.add_argument(_this_arg_flag, type=bool_from_string,
                       help=_this_arg_help)
 
 # Argument Parser : HybRecord
-_this_arg_key  = 'allow_undefined_flags'
+_this_arg_key = 'allow_undefined_flags'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
-                 Allow use of flags not definied in the hybkit-specificiation order when 
-                 reading and writing hyb records. As the preferred alternative to 
+                 Allow use of flags not definied in the hybkit-specificiation order when
+                 reading and writing hyb records. As the preferred alternative to
                  using this setting,
                  the --custom_flags arguement can be be used to supply custom allowed flags.
                  """
@@ -475,35 +529,34 @@ hr_group.add_argument(_this_arg_flag, type=bool_from_string,
                       help=_this_arg_help)
 
 
-
-
 # Argument Parser : HybFile
 # Create parser for HybFile options
 hybfile_parser = argparse.ArgumentParser(add_help=False)
 hf_group = hybfile_parser.add_argument_group('General Hyb File Settings')
 hf_defaults = hybkit.HybFile.DEFAULTS
 
-# Argument Parser : HybFile 
-_this_arg_key  = 'hybformat_id'
+# Argument Parser : HybFile
+_this_arg_key = 'hybformat_id'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  The Hyb Software Package places further information in the "id" field of the
                  hybrid record that can be used to infer the number of contained read counts.
-                 When set to True, the identifiers will be parsed as: "<read_id>_<read_count>" 
+                 When set to True, the identifiers will be parsed as: "<read_id>_<read_count>"
                  """
 hf_group.add_argument(_this_arg_flag, type=bool_from_string,
                       choices=[True, False],
                       default=hf_defaults[_this_arg_key],
                       help=_this_arg_help)
 
-# Argument Parser : HybFile 
-_this_arg_key  = 'hybformat_ref'
+# Argument Parser : HybFile
+_this_arg_key = 'hybformat_ref'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  The Hyb Software Package uses a reference database with identifiers
                  that contain sequence type and other sequence information.
-                 When set to True, all hyb file identifiers will be parsed as: 
+                 When set to True, all hyb file identifiers will be parsed as:
                  "<gene_id>_<transcript_id>_<gene_name>_<seg_type>"
+                 and will raise an error if this cannot be done.
                  """
 hf_group.add_argument(_this_arg_flag, type=bool_from_string,
                       choices=[True, False],
@@ -517,8 +570,8 @@ foldrecord_parser = argparse.ArgumentParser(add_help=False)
 fr_group = foldrecord_parser.add_argument_group('Fold Record Settings')
 fr_defaults = hybkit.FoldRecord.DEFAULTS
 
-# Argument Parser : FoldRecord 
-_this_arg_key  = 'skip_bad_fold_records'
+# Argument Parser : FoldRecord
+_this_arg_key = 'skip_bad_fold_records'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  When reading a fold record, bad fold records should be skipped.
@@ -530,8 +583,8 @@ fr_group.add_argument(_this_arg_flag, type=bool_from_string,
                       default=fr_defaults[_this_arg_key],
                       help=_this_arg_help)
 
-# Argument Parser : FoldRecord 
-_this_arg_key  = 'warn_bad_fold_records'
+# Argument Parser : FoldRecord
+_this_arg_key = 'warn_bad_fold_records'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  When reading a fold record, print a warning when an improperly-formatted fold
@@ -542,8 +595,8 @@ fr_group.add_argument(_this_arg_flag, type=bool_from_string,
                       default=fr_defaults[_this_arg_key],
                       help=_this_arg_help)
 
-# Argument Parser : FoldRecord 
-_this_arg_key  = 'fold_placeholder'
+# Argument Parser : FoldRecord
+_this_arg_key = 'fold_placeholder'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Placeholder character/string for missing data for reading/writing fold records.
@@ -558,12 +611,12 @@ foldfile_parser = argparse.ArgumentParser(add_help=False)
 ff_group = foldfile_parser.add_argument_group('Fold File Settings')
 ff_defaults = hybkit.FoldFile.DEFAULTS
 
-# Argument Parser : FoldFile 
-_this_arg_key  = 'hybformat_file'
+# Argument Parser : FoldFile
+_this_arg_key = 'hybformat_file'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  The Hyb Software Package contains further information in the "name" field of the
-                 viennad record that can be used to infer further information 
+                 viennad record that can be used to infer further information
                  about the fold divisions.
                  """
 ff_group.add_argument(_this_arg_flag, type=bool_from_string,
@@ -616,7 +669,7 @@ segtype_opts_group.add_argument('--segtype_params', type=file_exists,
                                 help=_this_arg_help)
 
 # Argument Parser : hyb_analysis : segtype
-_this_arg_key  = 'allow_unknown_seg_types'
+_this_arg_key = 'allow_unknown_seg_types'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Allow unknown segment types when assigning segment types.
@@ -627,7 +680,7 @@ segtype_opts_group.add_argument(_this_arg_flag, type=bool_from_string,
                                 help=_this_arg_help)
 
 # Argument Parser : hyb_analysis : segtype
-_this_arg_key  = 'check_complete_seg_types'
+_this_arg_key = 'check_complete_seg_types'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Check every segment possibility when assigning segment types, rather than
@@ -643,7 +696,7 @@ segtype_opts_group.add_argument(_this_arg_flag, type=bool_from_string,
 mirna_opts_group = hyb_analysis_parser.add_argument_group('mirna Analysis Options')
 
 # Argument Parser : hyb_analysis : mirna
-_this_arg_key  = 'mirna_types'
+_this_arg_key = 'mirna_types'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Segment types to identifiy as microRNAs (miRNAs) during miRNA analysis.
@@ -657,7 +710,7 @@ mirna_opts_group.add_argument(_this_arg_flag, type=str,
 regions_opts_group = hyb_analysis_parser.add_argument_group('target_region Analysis Options')
 
 # Argument Parser : HybRecord
-_this_arg_key  = 'coding_types'
+_this_arg_key = 'coding_types'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Segment types to identify as coding/messenger RNA (mRNA) during
@@ -669,24 +722,26 @@ regions_opts_group.add_argument(_this_arg_flag, type=str,
                                 help=_this_arg_help)
 
 # Argument Parser : hyb_analysis : target_region
-_this_arg_key  = 'allow_unknown_regions'
+_this_arg_key = 'allow_unknown_regions'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Allow unknown mRNA regions when performing target region analysis.
                  """
-regions_opts_group.add_argument(_this_arg_flag, type=bool_from_string,
+regions_opts_group.add_argument(_this_arg_flag,
+                                type=bool_from_string,
                                 choices=[True, False],
                                 default=hr_defaults[_this_arg_key],
                                 help=_this_arg_help)
 
 # Argument Parser : hyb_analysis : target_region
-_this_arg_key  = 'warn_unknown_regions'
+_this_arg_key = 'warn_unknown_regions'
 _this_arg_flag = '--' + _this_arg_key
 _this_arg_help = """
                  Print a warning message for unknown regions when performing
                  target region analysis.
                  """
-regions_opts_group.add_argument(_this_arg_flag, type=bool_from_string,
+regions_opts_group.add_argument(_this_arg_flag,
+                                type=bool_from_string,
                                 choices=[True, False],
                                 default=hr_defaults[_this_arg_key],
                                 help=_this_arg_help)
@@ -695,7 +750,7 @@ regions_opts_group.add_argument(_this_arg_flag, type=bool_from_string,
 # Argument Parser : hyb_filter
 hyb_filter_parser = argparse.ArgumentParser(add_help=False)
 _this_arg_help = """
-                 Modes for evaluating multiple filters. 
+                 Modes for evaluating multiple filters.
                  The "all" mode requires all provided filters to be true for inclusion.
                  The "any" mode requires only one provided filter to be true for inclusion.
                  (Note: matching any exclusion filter is grounds for exclusion of record.)
@@ -707,13 +762,13 @@ hyb_filter_parser.add_argument('-m', '--filter_mode',
                                choices={'all', 'any'},
                                help=_this_arg_help)
 
-for i in range(1,4):
+for i in range(1, 4):
     _this_arg_help = """
-                     Filter criteria #%i. 
+                     Filter criteria #%i.
                      Records matching the criteria will be included in output.
                      Includes a filter type, Ex: "seg_name_contains",
                      and an argument, Ex: "ENST00000340384".
-                     (Note: not all filter types require a second argument, 
+                     (Note: not all filter types require a second argument,
                      for Example: "has_mirna_seg")
                      """ % i
     if i == 1:
@@ -728,13 +783,13 @@ for i in range(1,4):
                                    # choices={'all', 'any'},
                                    help=_this_arg_help)
 
-for i in range(1,4):
+for i in range(1, 4):
     _this_arg_help = """
-                     Exclusion filter criteria #%i. 
+                     Exclusion filter criteria #%i.
                      Records matching the criteria will be excluded from output.
                      Includes a filter type, Ex: "seg_name_contains",
                      and an argument, Ex: "ENST00000340384".
-                     (Note: not all filter types require a second argument, 
+                     (Note: not all filter types require a second argument,
                      for Example: "has_mirna_seg")
                      """ % i
     if i == 1:
@@ -757,64 +812,142 @@ Output File Naming:
 
     Automatic Name Generation:
         For output name generation, the default respective naming scheme is used::
-        
+
             hyb_script -i PATH_TO/MY_FILE_1.HYB [...]
                 -->  OUT_DIR/MY_FILE_1_ADDSUFFIX.HYB
-    
+
         This output file path can be modified with the arguments {--out_dir, --out_suffix}
         described below.
-    
-        The output directory defaults to the current working directory ``($PWD)``, and 
-        can be modified with the ``--out_dir <dir>`` argument. 
+
+        The output directory defaults to the current working directory ``($PWD)``, and
+        can be modified with the ``--out_dir <dir>`` argument.
         Note: The provided directory must exist, or an error will be raised.
         For Example::
-    
+
             hyb_script -i PATH_TO/MY_FILE_1.HYB [...] --out_dir MY_OUT_DIR
                 -->  MY_OUT_DIR/MY_FILE_1_ADDSUFFIX.HYB
-    
+
         The suffix used for output files is based on the primary actions of the script.
         It can be specified using ``--out_suffix <suffix>``. This can optionally include
         the ".hyb" final suffix.
         for Example::
-    
+
             hyb_script -i PATH_TO/MY_FILE_1.HYB [...] --out_suffix MY_SUFFIX
-                -->  OUT_DIR/MY_FILE_1_MY_SUFFIX.HYB 
+                -->  OUT_DIR/MY_FILE_1_MY_SUFFIX.HYB
             #OR
             hyb_script -i PATH_TO/MY_FILE_1.HYB [...] --out_suffix MY_SUFFIX.HYB
                 -->  OUT_DIR/MY_FILE_1_MY_SUFFIX.HYB
-    
+
     Specific Output Names:
         Alternatively, specific file names can be provided via the -o/--out_hyb argument,
         ensuring that the same number of input and output files are provided. This argument
-        takes precedence over all automatic output file naming options 
+        takes precedence over all automatic output file naming options
         (--out_dir, --out_suffix), which are ignored if -o/--out_hyb is provided.
         For Example::
-    
+
             hyb_script [...] --out_hyb MY_OUT_DIR/OUT_FILE_1.HYB MY_OUT_DIR/OUT_FILE_2.HYB
                 -->  MY_OUT_DIR/OUT_FILE_1.hyb
                 -->  MY_OUT_DIR/OUT_FILE_2.hyb
-        
-        Note: The directory provided with output file paths (MY_OUT_DIR above) must exist, 
+
+        Note: The directory provided with output file paths (MY_OUT_DIR above) must exist,
         otherwise an error will be raised.
     """)
 
+# Argument Parser : General Analysis Opts:
+an_defaults = hybkit.analysis.DEFAULTS
+common_analysis_parser = argparse.ArgumentParser(add_help=False)
+cm_anl_group = common_analysis_parser.add_argument_group('General Analysis Options')
+_this_arg_help = """
+                 Mode for counting hyb records: "record" counts each hyb record as one count.
+                 This is the standard analysis mode when there is no differentation
+                 between PCR-amplified reads and unique transcripts.
+                 "read" counts the number of reads contained within each hyb_record.
+                 This is stored in the "read_count" flag in the flags column of
+                 the hyb record. This is used when the hybrecord represents multiple,
+                 uniquely-differentiated reads, as when the reads contained a unique
+                 barcode that was trimmed. The read count is stored in the hybrid identifier
+                 when the ".hyb" file was created by the Hyb software package,
+                 in the form "<read_index>_<read_count>" and can be read using the
+                 hybkit flag "--hybformat_id"
+                 """
+cm_anl_group.add_argument('--count_mode',
+                          # required=True,
+                          # nargs='+',
+                          default=an_defaults['count_mode'],
+                          choices=an_defaults['count_modes'],
+                          help=_this_arg_help)
+
+# Argument Parser : General Analysis Opts:
+_this_arg_help = """
+                 When the analysis has multiple segments/components, whether to
+                 write (per-file) as distinct or a combined output file.
+                 When True, write as a cobmined file.
+                 When False, write as separate files.
+                 """
+cm_anl_group.add_argument('--write_multi_files',
+                          # required=True,
+                          # nargs='+',
+                          type=bool_from_string,
+                          choices=[True, False],
+                          default=an_defaults['write_multi_files'],
+                          help=_this_arg_help)
+
+# Argument Parser : General Analysis Opts:
+_this_arg_help = """
+                 Names to add as a prefix to the label of output plots for each respective
+                 analysis. If provided, the number of names must match the number of
+                 input files.
+                 """
+cm_anl_group.add_argument('--names',
+                          # required=True,
+                          # nargs='+',
+                          # choices=[True, False],
+                          # default=an_defaults['write_multi_files'],
+                          help=_this_arg_help)
+
+# Argument Parser : General Analysis Opts:
+_this_arg_help = """
+                 Make plots with analysis using the matplotlib library.
+                 """
+cm_anl_group.add_argument('--make_plots',
+                          # required=True,
+                          # nargs='+',
+                          type=bool_from_string,
+                          choices=[True, False],
+                          default=an_defaults['make_plots'],
+                          help=_this_arg_help)
+
+
 # Argument Parser : hyb_type_analysis
 hyb_type_analysis_parser = argparse.ArgumentParser(add_help=False)
-# _this_arg_help = """
-#                  Modes for evaluating multiple filters. 
-#                  """
-# hyb_type_analysis_parser.add_argument('-m', '--filter_mode',
-#                                       # required=True,
-#                                       # nargs='+',
-#                                       default='all',
-#                                       choices={'all', 'any'},
-#                                       help=_this_arg_help)
+type_anl_group = hyb_type_analysis_parser.add_argument_group('Type_Analysis Options')
+_this_arg_help = """
+                 Separator string between segtypes in analysis output.
+                 """
+type_anl_group.add_argument('--hybrid_type_sep',
+                            # required=True,
+                            # nargs='+',
+                            default=an_defaults['hybrid_type_sep'],
+                            # choices={'all', 'any'},
+                            help=_this_arg_help)
 
+# Argument Parser : hyb_type_analysis
+_this_arg_help = """
+                 Write additional combined output file(s) for the analyses when there is
+                 more than one input file provided.
+                 """
+type_anl_group.add_argument('--write_combined',
+                            # required=True,
+                            # nargs='+',
+                            type=bool_from_string,
+                            choices=[True, False],
+                            default=False,
+                            help=_this_arg_help)
 
 
 # Allow execution of module for testing purposes.
 if __name__ == '__main__':
-    all_parsers = [#in_hyb_parser, 
+    all_parsers = [  # in_hyb_parser,
                    in_hybs_parser,
                    out_hyb_parser,
                    out_dir_parser,
@@ -822,4 +955,3 @@ if __name__ == '__main__':
     test_parser = argparse.ArgumentParser(parents=all_parsers,
                                           formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     test_parser.print_help()
-

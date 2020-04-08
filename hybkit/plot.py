@@ -16,10 +16,10 @@ import copy
 
 # Public Constants
 DEFAULT_PIE_MATPLOTLIB_SETTINGS = {
-    'autopct':'%1.1f%%',
-    'shadow':False,
-    'startangle':90,
-    'counterclock':False,
+    'autopct': '%1.1f%%',
+    'shadow': False,
+    'startangle': 90,
+    'counterclock': False,
     }
 DEFAULT_PIE_RC_PARAMS = {
     }
@@ -28,10 +28,10 @@ DEFAULT_FILE_TYPE = 'png'
 DEFAULT_PIE_OTHER_THRESHHOLD = 0.1
 DEFAULT_PIE_MIN_WEDGE_SIZE = 0.04
 DEFAULT_LINE_RC_PARAMS = {
-    'axes.titlesize':'x-large',
-    'axes.labelsize':'large',
-    'xtick.labelsize':'large',
-    'ytick.labelsize':'large',
+    'axes.titlesize': 'x-large',
+    'axes.labelsize': 'large',
+    'xtick.labelsize': 'large',
+    'ytick.labelsize': 'large',
     }
 DEFAULT_LINE_DATA_FORMAT = '-'
 DEFAULT_LINE_MIN_FRACTION_SIZE = 0.01
@@ -40,11 +40,10 @@ DEFAULT_ALL_SEG_TYPE_COUNTS_TITLE = 'Total Segment Portions'
 DEFAULT_MIRNA_COUNTS_TITLE = 'Hybrid Types'
 DEFAULT_FIG_SIZE = matplotlib.rcParams['figure.figsize']  # 6.4, 4.8 in
 TITLE_PAD = 15
-FORMAT_NAME_MAP = {'5p_mirna_hybrids':"5'_miRNA_Hybrids",
-                   '3p_mirna_hybrids':"3'_miRNA_Hybrids",
-                   'mirna_dimer_hybrids':'miRNA_Duplexes',
-                   'no_mirna_hybrids':'Non-miRNA_Hybrids'}
-
+FORMAT_NAME_MAP = {'5p_mirna_hybrids': "5'_miRNA_Hybrids",
+                   '3p_mirna_hybrids': "3'_miRNA_Hybrids",
+                   'mirna_dimer_hybrids': 'miRNA_Duplexes',
+                   'no_mirna_hybrids': 'Non-miRNA_Hybrids'}
 
 
 # Public Methods : HybRecord Type Analysis Plotting
@@ -63,11 +62,11 @@ def hybrid_type_count(plot_file_name, analysis_dict,
         plot_file_name (str): File name for output plots.
         analysis_dict (dict): Dict from type analysis (see :func:`type_dict`).
         title (str, optional): Title / header for plot.
-        other_threshhold (float, optional): Total fraction at which to begin the "other" wedge. 
+        other_threshhold (float, optional): Total fraction at which to begin the "other" wedge.
             Setting to 0.0 disables the "other" wedge based on a threshhold.
         min_wedge_size (float, optional): Minimum wedge fraction at which to add to the "other"
             wedge. Setting to 0.0 disables the "other" wedge based on minimum wedge size.
-        plot_file_type (str, optional): File type for saving of plots. Options: 
+        plot_file_type (str, optional): File type for saving of plots. Options:
             {'png', 'ps', 'pdf', 'svg'}
         dpi (int, optional): DPI for saving of plots.
         matplotlib_settings (dict, optional): Dict of keys and values of settings to pass
@@ -77,7 +76,7 @@ def hybrid_type_count(plot_file_name, analysis_dict,
     # Sort hybrid_type_counts counter object in descending order
     labels = []
     counts = []
-    for key, count in analysis_dict['hybrid_type_counts'].most_common(): 
+    for key, count in analysis_dict['hybrid_type_counts'].most_common():
         labels.append(key)
         counts.append(count)
 
@@ -93,7 +92,7 @@ def hybrid_type_count(plot_file_name, analysis_dict,
                     plot_file_type=plot_file_type,
                     dpi=dpi,
                     matplotlib_settings=matplotlib_settings,
-                   )
+                    )
 
 
 # Public Methods : HybRecord Type Analysis Plotting
@@ -110,7 +109,7 @@ def all_seg_type(plot_file_name, analysis_dict,
 
     Args:
         plot_file_name (str): File name for output plot.
-        analysis_dict (dict): Dict from type analysis 
+        analysis_dict (dict): Dict from type analysis
             (see :func:`type_dict`).
         title (str, optional): Title / header for plot.
         other_threshhold (float, optional): Total fraction at which to begin the "other" wedge.
@@ -127,7 +126,7 @@ def all_seg_type(plot_file_name, analysis_dict,
     # Sort hybrid_type_counts counter object in descending order
     labels = []
     counts = []
-    for key, count in analysis_dict['all_seg_types'].most_common(): 
+    for key, count in analysis_dict['all_seg_types'].most_common():
         labels.append(key)
         counts.append(count)
 
@@ -143,7 +142,7 @@ def all_seg_type(plot_file_name, analysis_dict,
                     plot_file_type=plot_file_type,
                     dpi=dpi,
                     matplotlib_settings=matplotlib_settings,
-                   )
+                    )
 
 
 # Public Methods : HybRecord Type Analysis Plotting
@@ -160,7 +159,7 @@ def mirna_count(plot_file_name, analysis_dict,
 
     Args:
         plot_file_name (str): File name for output plot.
-        analysis_dict (dict): Dict from mirna count analysis 
+        analysis_dict (dict): Dict from mirna count analysis
             (see :func:`~hybkit.mirna_count_dict`).
         title (str, optional): Title / header for plot.
         other_threshhold (float, optional): Total fraction at which to begin the "other" wedge.
@@ -170,7 +169,7 @@ def mirna_count(plot_file_name, analysis_dict,
         plot_file_type (str, optional): File type for saving of plots. Options:
             {'png', 'ps', 'pdf', 'svg'}
         dpi (int, optional): DPI for saving of plots.
-        matplotlib_settings (dict, optional): Dict of keys and values of settings to pass 
+        matplotlib_settings (dict, optional): Dict of keys and values of settings to pass
             to the matplotlib.plot() function.
         """
 
@@ -202,11 +201,11 @@ def mirna_count(plot_file_name, analysis_dict,
                     plot_file_type=plot_file_type,
                     dpi=dpi,
                     matplotlib_settings=matplotlib_settings,
-                   )
+                    )
 
 
 # Public Methods : HybRecord miRNA Target Analysis Plotting
-def mirna_target(plot_file_name, mirna_name, mirna_targets_dict, 
+def mirna_target(plot_file_name, mirna_name, mirna_targets_dict,
                  title=None,
                  name=None,
                  other_threshhold=DEFAULT_PIE_OTHER_THRESHHOLD,
@@ -220,7 +219,7 @@ def mirna_target(plot_file_name, mirna_name, mirna_targets_dict,
     Args:
         plot_file_name (str): File name for output plot.
         mirna_name (str): Name of miRNA to plot for title.
-        mirna_targets_dict (dict): Dict from mirna_target analysis 
+        mirna_targets_dict (dict): Dict from mirna_target analysis
             (see :func:`~hybkit.mirna_target_dict`).
         title (str, optional): Title / header for plot (replaces default title).
         name (str, optional): Data source name to prepend to title.
@@ -237,19 +236,18 @@ def mirna_target(plot_file_name, mirna_name, mirna_targets_dict,
 
     labels = []
     counts = []
-    for ((target, target_seg_type), count) in mirna_targets_dict.most_common(): 
+    for ((target, target_seg_type), count) in mirna_targets_dict.most_common():
         labels.append(target)
         counts.append(count)
 
     if title is None:
-        title = 'Targets of ' + str(mirna_name) 
+        title = 'Targets of ' + str(mirna_name)
 
     if name is not None:
         title = str(name) + ': ' + title
 
-    matplotlib_settings.update({'textprops':{'size':'small'},
-                               })
-
+    matplotlib_settings.update({'textprops': {'size': 'small'},
+                                })
 
     # Set figsize:
     # Width set at constant 9(inches)
@@ -257,7 +255,7 @@ def mirna_target(plot_file_name, mirna_name, mirna_targets_dict,
     # Height 3 + (0.16 * count-20) for: 20 < count < 45 labels
     # Height 6.5 for <= 20 character labels, ratio of 9:6.5 (more square)
     longest = max((len(label) for label in labels))
-    add_count = max(longest-20, 0)  
+    add_count = max(longest-20, 0)
     max_height = 6.5
     min_height = 3.0
     height = max((max_height - (0.16 * add_count)), (3.0))  # Ensure no less than min_height
@@ -278,7 +276,7 @@ def mirna_target(plot_file_name, mirna_name, mirna_targets_dict,
 
 
 # Public Methods : HybRecord miRNA Target Analysis Plotting
-def mirna_target_type(plot_file_name, mirna_name, mirna_target_type_counts_dict, 
+def mirna_target_type(plot_file_name, mirna_name, mirna_target_type_counts_dict,
                       title=None,
                       name=None,
                       other_threshhold=DEFAULT_PIE_OTHER_THRESHHOLD,
@@ -304,11 +302,12 @@ def mirna_target_type(plot_file_name, mirna_name, mirna_target_type_counts_dict,
             {'png', 'ps', 'pdf', 'svg'}
         dpi (int, optional): DPI for saving of plots.
         matplotlib_settings (dict, optional): Dict of keys and values of settings to pass
-            to the matplotlib.plot() function.                                                          """
+        to the matplotlib.plot() function.
+    """
 
     labels = []
     counts = []
-    for key, count in mirna_target_type_counts_dict.most_common(): 
+    for key, count in mirna_target_type_counts_dict.most_common():
         labels.append(key)
         counts.append(count)
 
@@ -318,8 +317,8 @@ def mirna_target_type(plot_file_name, mirna_name, mirna_target_type_counts_dict,
     if name is not None:
         title = str(name) + ': ' + title
 
-    matplotlib_settings.update({'textprops':{'size':'small'},
-                               })
+    matplotlib_settings.update({'textprops': {'size': 'small'},
+                                })
 
     _plot_pie_chart(labels=labels,
                     sizes=counts,
@@ -331,6 +330,7 @@ def mirna_target_type(plot_file_name, mirna_name, mirna_target_type_counts_dict,
                     dpi=dpi,
                     matplotlib_settings=matplotlib_settings,
                     )
+
 
 # Public Methods : HybRecord miRNA Target Analysis Plotting
 def mirna_fold(plot_file_name, fold_analysis_dict,
@@ -357,7 +357,8 @@ def mirna_fold(plot_file_name, fold_analysis_dict,
             {'png', 'ps', 'pdf', 'svg'}
         dpi (int, optional): DPI for saving of plots.
         matplotlib_settings (dict, optional): Dict of keys and values of settings to pass
-            to the matplotlib.plot() function.                                                          """
+        to the matplotlib.plot() function.
+    """
 
     labels = []
     fractions = []
@@ -376,9 +377,8 @@ def mirna_fold(plot_file_name, fold_analysis_dict,
     if name is not None:
         title = str(name) + ': ' + title
 
-    #matplotlib_settings.update({'textprops':{'size':'small'},
-    #                           })
-
+    # matplotlib_settings.update({'textprops':{'size':'small'},
+    #                            })
 
     _plot_line(labels=labels,
                sizes=fractions,
@@ -433,26 +433,26 @@ def _plot_pie_chart(labels, sizes, plot_file_name,
         plot.title(title, pad=TITLE_PAD)
     if not plot_file_name.endswith(plot_file_type):
         plot_file_name += '.' + plot_file_type
-    plot.savefig(plot_file_name, dpi=dpi)  
+    plot.savefig(plot_file_name, dpi=dpi)
     plot.clf()
     plot.close()
 
-    #patches, texts = plt.pie(sizes, colors=colors, shadow=True, startangle=90)
-    #plt.legend(patches, labels, loc="best")
-    #plt.axis('equal')
-    #plt.tight_layout()
-    #plt.show()
-   
- 
+    # patches, texts = plt.pie(sizes, colors=colors, shadow=True, startangle=90)
+    # plt.legend(patches, labels, loc="best")
+    # plt.axis('equal')
+    # plt.tight_layout()
+    # plt.show()
+
+
 # Private Methods : Pie Chart
 def _plot_line(labels, sizes, plot_file_name,
-                    title=None,
-                    min_fraction_size=DEFAULT_LINE_MIN_FRACTION_SIZE,
-                    plot_file_type=DEFAULT_FILE_TYPE,
-                    data_format=DEFAULT_LINE_DATA_FORMAT,
-                    dpi=DEFAULT_DPI,
-                    figsize=DEFAULT_FIG_SIZE,
-                    matplotlib_settings=copy.deepcopy(DEFAULT_LINE_RC_PARAMS)):
+               title=None,
+               min_fraction_size=DEFAULT_LINE_MIN_FRACTION_SIZE,
+               plot_file_type=DEFAULT_FILE_TYPE,
+               data_format=DEFAULT_LINE_DATA_FORMAT,
+               dpi=DEFAULT_DPI,
+               figsize=DEFAULT_FIG_SIZE,
+               matplotlib_settings=copy.deepcopy(DEFAULT_LINE_RC_PARAMS)):
     max_size = max(sizes)
     if abs(max_size) < 0.00000000000001:
         print('Warning: Attempted to create empty plot to name: %s' % plot_file_name)
@@ -471,21 +471,20 @@ def _plot_line(labels, sizes, plot_file_name,
     fig.set_size_inches(figsize)
     lines = plot.plot(use_labels, use_sizes, data_format)
     plot.xlim(left=1)
-    plot.xticks(range(1,len(labels)+1,2))
+    plot.xticks(range(1, len(labels)+1, 2))
     plot.xlabel('miRNA Base Position Index')
     plot.ylabel('Percent Bound')
     if title is not None:
         plot.title(title, pad=TITLE_PAD)
     if not plot_file_name.endswith(plot_file_type):
         plot_file_name += '.' + plot_file_type
-    plot.savefig(plot_file_name, dpi=dpi)  
+    plot.savefig(plot_file_name, dpi=dpi)
     plot.clf()
     plot.close()
     matplotlib.rcdefaults()
 
-    #patches, texts = plt.pie(sizes, colors=colors, shadow=True, startangle=90)
-    #plt.legend(patches, labels, loc="best")
-    #plt.axis('equal')
-    #plt.tight_layout()
-    #plt.show()
-    
+    # patches, texts = plt.pie(sizes, colors=colors, shadow=True, startangle=90)
+    # plt.legend(patches, labels, loc="best")
+    # plt.axis('equal')
+    # plt.tight_layout()
+    # plt.show()

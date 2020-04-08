@@ -10,20 +10,26 @@
 # See: "summary_analysis_notes.rst" for more information.
 
 # Set script directories and input file names.
-ANALYSIS_DIR="."
-# ANALYSIS_DIR="$(pwd)"
+ANALYSIS_DIR="."          # Uses Relative Paths
+# ANALYSIS_DIR="$(pwd)"   # Uses Absolute Paths
 
 OUT_DIR="${ANALYSIS_DIR}/output"
+COMMAND_LOG="${OUT_DIR}/shell_command_log.txt"
 MATCH_LEGEND_FILE="${ANALYSIS_DIR}/string_match_legend.csv"
 
 #INPUTS="$(find ${ANALYSIS_DIR} -name 'GSM*BR1.hyb' -print)"
-INPUTS="$(ls ${ANALYSIS_DIR}/GSM*BR1.hyb)"
+#INPUTS="$(ls ${ANALYSIS_DIR}/GSM*BR1.hyb)"
+for f in ${ANALYSIS_DIR}/GSM*BR1.hyb
+do
+  INPUTS="${INPUTS} $f"
+done
 
 # Begin Analysis
 echo ""
 echo "Performing QC & Summary Analysis..."
 echo "" 
 
+# Create Output Directory if Needed.
 if [ ! -d "${OUT_DIR}" ]
 then
     echo "Creating Output Directory: ${OUT_DIR}"
@@ -31,94 +37,98 @@ then
     echo ""
 fi
 
-# Display Working Files
+echo "Saving Commands to Log File: ${COMMAND_LOG}"
+echo ""
+echo "" > "${COMMAND_LOG}"
+
+
 echo "Analyzing Files:"
 for f in ${INPUTS}
 do
   echo "    ${f}"
-  LINE_INPUTS="${LINE_INPUTS} ${f}"
 done
 echo ""
 
-# Setup Command
-HYB_ANALYZE_COMMAND="hyb_analyze -i ${LINE_INPUTS} --out_dir ${OUT_DIR} \
---segtype_method string_match  --segtype_params ${MATCH_LEGEND_FILE} --hybformat_id True --verbose"
+# -t segtype mirna  -->  Do a segtype and a mirna analysis.
+# --segtype_method string_match  -->  Use the string_match segment finding type, 
+#   as there are non-hyb-format references used.
+# --segtype_params ${MATCH_LEGEND_FILE} use custome legend file, that includes 
+#   types for KSHV sequences
+# --mirna_types miRNA microRNA kshv_microRNA  -->  Assign these three types as miRNA,
+#   (instead of the default {miRNA microRNA})
 
+# Setup Analysis Command
+HYB_ANALYZE_COMMAND="hyb_analyze -i ${INPUTS} --out_dir ${OUT_DIR} -t segtype mirna \
+--segtype_method string_match  --segtype_params ${MATCH_LEGEND_FILE} \
+--mirna_types miRNA microRNA kshv_microRNA \
+--hybformat_id True --verbose"
+
+# Run Analysis Command
 echo "Running Command:"
 echo "    ${HYB_ANALYZE_COMMAND}"
 echo ""
-eval "${HYB_ANALYZE_COMMAND}"
+echo "${HYB_ANALYZE_COMMAND}" >> "${COMMAND_LOG}"
+#eval "${HYB_ANALYZE_COMMAND}"
 
-exit
+# Setup Filtering Input Files
+for f in ${INPUTS}
+do
+  ANALYZED_INPUT="${f/.hyb/_analyzed.hyb}"
+  ANALYZED_INPUT="${ANALYZED_INPUT/.\//${OUT_DIR}/}"
+  ANALYZED_INPUTS="${ANALYZED_INPUTS} ${ANALYZED_INPUT}"
+done
 
-hyb_filter
+echo "Filtering Files:"
+for f in ${ANALYZED_INPUTS}
+do
+  echo "    ${f}"
+done
+echo ""
 
-# # Set hybrid segment types to remove as part of quality control [QC]
-# remove_types = ['rRNA', 'mitoch_rRNA']
-# 
-# # Iterate over each input file, find the segment types, and save the output 
-# #   in the output directory.
-# for in_file_path in input_files:
-#     in_file_name = os.path.basename[in_file_path]
-#     in_file_label = in_file_name.replace['.hyb', '']
-#     out_file_name = in_file_name.replace['.hyb', '_qc.hyb']
-#     out_file_path = os.path.join[out_dir, out_file_name]
-# 
-#     print['Analyzing:\n    %s' % in_file_path]
-#     print['Outputting to:\n    %s\n' % out_file_path]
-# 
-#     # Open one HybFile entry for reading, and one for writing
-#     with hybkit.HybFile[in_file_path, 'r'] as in_file, \
-#          hybkit.HybFile[out_file_path, 'w'] as out_file:
-# 
-#         # Iterate over each record of the input file
-#         for hyb_record in in_file:
-#             # Find the segments type of each record
-#             hyb_record.find_seg_types[]
-# 
-#             # Determine if record has type that is excluded
-#             use_record = True
-#             for remove_type in remove_types:
-#                 if hyb_record.has_property['seg_type', remove_type]:
-#                     use_record = False
-#                     break
-# 
-#             # If record has an excluded type, continue to next record without analyzing.
-#             if not use_record:
-#                 continue 
-# 
-#             # Perform record analysis
-#             hyb_record.mirna_analysis[]
-# 
-#             # Add summary_analysis details to analysis_dict, using record numbers for counts
-#             hybkit.analysis.addto_summary[hyb_record,
-#                                           analysis_dict, 
-#                                           count_mode=count_mode]
-# 
-#             # Write the modified record to the output file  
-#             out_file.write_record[hyb_record]
-# 
-#     # Write mirna_analysis for input file to outputs. 
-#     analysis_file_basename = out_file_path.replace['.hyb', '']
-#     print['Outputting Analyses to:\n    %s\n' % analysis_file_basename]
-#     hybkit.analysis.write_summary[analysis_file_basename, 
-#                                   analysis_dict, 
-#                                   multi_files=True, 
-#                                   name=in_file_label]
-#    
-#     analysis_dicts.append[analysis_dict]
-# 
-# # Create a combined summary analysis
-# combined_analysis_dict = hybkit.analysis.combine_summary_dicts[analysis_dicts] 
-# 
-# # Write combined summary analysis to files.
-# combined_analysis_file_basename = os.path.join[out_dir, 'combined_analysis']
-# print['Outputting Combined Analysis to:\n    %s\n' % combined_analysis_file_basename]
-# hybkit.analysis.write_summary[combined_analysis_file_basename, 
-#                               combined_analysis_dict, 
-#                               multi_files=True,
-#                               name='Combined']
-# 
-# print['Done!']  
-# 
-# 
+# Setup Filter Command
+# --out_suffix _qc  -->  Name the output files using [base]_qc.hyb 
+#   to indicate what was specifically done.
+# --exclude seg_type rRNA  -->  Exclude segment types matching rRNA
+# --exclude_2 seg_type mitoch_rRNA  -->  Exclude segment types matching mitoch_rRNA
+
+HYB_FILTER_COMMAND="hyb_filter -i ${ANALYZED_INPUTS} --out_dir ${OUT_DIR} \
+--out_suffix _qc \
+--exclude seg_type rRNA --exclude_2 seg_type mitoch_rRNA --verbose"
+
+# Run Filter Command
+echo "Running Command:"
+echo "    ${HYB_FILTER_COMMAND}"
+echo ""
+echo "${HYB_FILTER_COMMAND}" >> "${COMMAND_LOG}"
+#eval "${HYB_FILTER_COMMAND}"
+
+
+# Setup Summary_Analysis Input Files
+for f in ${ANALYZED_INPUTS}
+do
+  FILTERED_INPUT="${f/.hyb/_qc.hyb}"
+  FILTERED_INPUTS="${FILTERED_INPUTS} ${FILTERED_INPUT}"
+done
+
+echo "Performing Summary Analysis on Files:"
+for f in ${FILTERED_INPUTS}
+do
+  echo "    ${f}"
+done
+echo ""
+
+
+
+# Setup Summary_Analysis Command
+HYB_SUMMARY_ANALYSIS_COMMAND="hyb_type_analysis -i ${FILTERED_INPUTS} --out_dir ${OUT_DIR} \
+--write_multi_files True --write_combined True --verbose"
+
+# Run Summary_Analysis Command
+echo "Running Command:"
+echo "    ${HYB_SUMMARY_ANALYSIS_COMMAND}"
+echo ""
+echo "${HYB_SUMMARY_ANALYSIS_COMMAND}" >> "${COMMAND_LOG}"
+eval "${HYB_SUMMARY_ANALYSIS_COMMAND}"
+
+
+

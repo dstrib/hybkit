@@ -277,8 +277,6 @@ class HybRecord(object):
     # Placeholder symbol for empty entries. Default is "." in the Hyb software package.
     DEFAULTS['hyb_placeholder'] = '.'
 
-    DEFAULTS['count_mode'] = 'record'
-
     #: Dict of information required for use by :func:`find_seg_types`. 
     #: Set with the specific information required by the selected method for use by default.
     #: Currently supported paramater constructors:
@@ -1352,12 +1350,12 @@ class HybRecord(object):
         for setting in cls.settings:
             if hasattr(nspace, setting) and getattr(nspace, setting) != cls.settings[setting]:
                 new_setting = getattr(nspace, setting)
-                out_report += 'Setting HybRecord Setting:'
+                out_report += 'Setting HybRecord Setting: '
                 out_report += '"%s" to "%s"\n' % (setting, str(new_setting))
                 cls.settings[setting] = new_setting
 
         if verbose and out_report.strip():
-            print(out_report)
+            print(out_report.strip())
         
 
     # HybRecord : Public Classmethods : Record Construction
@@ -2105,12 +2103,12 @@ class HybFile(object):
         for setting in cls.settings:
             if hasattr(nspace, setting) and getattr(nspace, setting) != cls.settings[setting]:
                 new_setting = getattr(nspace, setting)
-                out_report += 'Setting HybFile Setting:'
+                out_report += 'Setting HybFile Setting: '
                 out_report += '"%s" to "%s"\n' % (setting, str(new_setting))
                 cls.settings[setting] = new_setting
 
         if verbose and out_report.strip():
-            print(out_report)
+            print(out_report.strip())
         
 
     # HybFile : Private Methods
@@ -3183,7 +3181,6 @@ class HybFoldIter(object):
             ret_obj = (next_hyb_record, next_fold_record)
         return ret_obj
 
-
         self.counter += 1
         next_hyb_record = next(self.hybfile_handle)
         next_fold_record = next(self.viennadfile_handle)
@@ -3191,16 +3188,16 @@ class HybFoldIter(object):
             try:
                 next_hyb_record.set_fold_record(next_fold_record)
                 ret_obj = next_hyb_record
-            except:
+            except BaseException:
                 print('For %s counter iteration: %i ...' % (str(self), self.counter))
                 raise
         else:
             ret_obj = (next_hyb_record, next_fold_record)
         return ret_obj
 
+
 # Import the remainder of hybkit code to connect.
 import hybkit
 import hybkit.analysis
 import hybkit.plot
 import hybkit.util
-
